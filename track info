@@ -1,7 +1,7 @@
 import requests
 # LINKS
 SPOTIFY_ACCESS_TOKEN = 'BQAgaiqZRIRVmerTvfchhs5ViOK6iMUKtH_zCCVWHh43KFxQiZuGx-ILR3nk9Ravif9wJZ87Nm59M0nIZiRrJHPVjQs_suGR2jdo4cp5QYYhsHklD8T_fzgoNtdJH4jP06vreQ0oQnzFOV993XmGZClbz4mwtiNfMFimnHRdKU3AHhc'
-# access token is OAuth Token at https://developer.spotify.com/console/get-user-player/
+
 SPOTIFY_GET_CURRENT_TRACK_URL = 'https://api.spotify.com/v1/me/player'
 pause = 'https://api.spotify.com/v1/me/player/pause'
 BaseUrl = 'https://api.spotify.com/v1/me'
