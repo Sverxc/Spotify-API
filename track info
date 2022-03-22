@@ -1,91 +1,86 @@
 import requests
+from time import *
 # LINKS
-SPOTIFY_ACCESS_TOKEN = 'BQAgaiqZRIRVmerTvfchhs5ViOK6iMUKtH_zCCVWHh43KFxQiZuGx-ILR3nk9Ravif9wJZ87Nm59M0nIZiRrJHPVjQs_suGR2jdo4cp5QYYhsHklD8T_fzgoNtdJH4jP06vreQ0oQnzFOV993XmGZClbz4mwtiNfMFimnHRdKU3AHhc'
-
+SPOTIFY_ACCESS_TOKEN = input('Enter your auth code: ')
+# access token is OAuth Token at https://developer.spotify.com/console/get-user-player/
 SPOTIFY_GET_CURRENT_TRACK_URL = 'https://api.spotify.com/v1/me/player'
 pause = 'https://api.spotify.com/v1/me/player/pause'
 BaseUrl = 'https://api.spotify.com/v1/me'
 
+time_remaining = 0
 
 # CURRENT TRACK INFORMATION
-
 def get_current_track(access_token):
+
     # FUNCTION TO BE ABLE TO ACCESS THE SONGS INFORMATION (NAMES ETC.)
-    while __name__ == '__main__':
 
-        response = requests.get(
-            SPOTIFY_GET_CURRENT_TRACK_URL,
+    global time_remaining
+    response = requests.get(
+        SPOTIFY_GET_CURRENT_TRACK_URL,
 
-            headers={
-                "Authorization": f"Bearer {access_token}"
-            }
-        )
-        resp_json = response.json()
-
-        # INFO OF SONG THAT IS PLAYING
-        track_id = resp_json['item']['id']
-        track_name = resp_json['item']['name']
-
-        track_duration = resp_json['item']['duration_ms']
-        track_runtime = track_duration // 1000
-
-        track_volume = resp_json['device']['volume_percent']
-
-        artists = resp_json['item']['artists']
-        artists_names = ', '.join(
-            [artist['name'] for artist in artists]
-        )
-
-        link = resp_json['item']['external_urls']['spotify']
-
-        # PUTTING ALL THE SONG INFO INTO A DICTIONARY, SO YOU CAN CALL SPECIFIC PIECES OF THE SONGS INFO FOR FUTURE PROJECTS OR WHATEVER
-        current_track_info = {
-            "Id": track_id,
-            "Name": track_name,
-            "Artist": artists_names,
-            "Link": link,
-            "Volume": track_volume,
-            "Duration in seconds": track_runtime
+        headers={
+            "Authorization": f"Bearer {access_token}"
         }
+    )
+    resp_json = response.json()
 
-        # PRINT THE INFORMATION ONTO THE CONSOLE
-        for key, value in current_track_info.items():
-            print(key, ':', value)
+    # INFO OF SONG THAT IS PLAYING
+    track_id = resp_json['item']['id']
+    track_name = resp_json['item']['name']
 
-        # CHANGE THE VOLUME OF SPOTIFY TO 100 IF THE SONG ARTIST IS JUICE WRLD, TRYING TO GET IT TO WORK ON YOUR PHONE
-        if "Juice WRLD" in current_track_info["Artist"]:
-            requests.put('https://api.spotify.com/v1/me/player/volume?volume_percent=100', headers={
-                "Authorization": f"Bearer {access_token}"
-            })
-            print("Volume is now 100")
+    track_duration = resp_json['item']['duration_ms']
+    track_total_runtime = track_duration // 1000
+    track_progress_runtime = resp_json['progress_ms'] // 1000
+    time_remaining += track_total_runtime - track_progress_runtime
 
-        # USE THE DEFAULT VOLUME OF 70 IF ARTIST IS NOT JUICE WRLD
-        if "Juice WRLD" not in current_track_info["Artist"]:
-            requests.put('https://api.spotify.com/v1/me/player/volume?volume_percent=70', headers={
-                "Authorization": f"Bearer {access_token}"
-            })
+    track_volume = resp_json['device']['volume_percent']
 
-        # PLAY AND PAUSE
-        while True:
-            # PAUSE
-            play_pause = input("Play/Pause: ")
-            if play_pause == "Pause":
-                requests.put('https://api.spotify.com/v1/me/player/pause', headers={
-                    "Authorization": f"Bearer {access_token}"
-                })
-            # PLAY
-            if play_pause == "Play":
-                requests.put('https://api.spotify.com/v1/me/player/play', headers={
-                    "Authorization": f"Bearer {access_token}"
-                })
+    artists = resp_json['item']['artists']
+    artists_names = ', '.join(
+        [artist['name'] for artist in artists]
+    )
 
+    link = resp_json['item']['external_urls']['spotify']
 
-# PRINT TRACK INFO USING A FUNCTION
-def main():
+    # PUTTING ALL THE SONG INFO INTO A DICTIONARY, SO YOU CAN CALL SPECIFIC PIECES OF THE SONGS INFO FOR FUTURE PROJECTS OR WHATEVER
+    current_track_info = {
+        "Id": track_id,
+        "Name": track_name,
+        "Artist": artists_names,
+        "Link": link,
+        "Volume": track_volume,
+        "Duration(sec)": track_total_runtime,
+        "Progress(sec)": track_progress_runtime,
+        "Time remaining(sec)": time_remaining
+    }
+
+    # PRINT THE INFORMATION ONTO THE CONSOLE
+    for key, value in current_track_info.items():
+        print(key, ':', value)
+
+    # CHANGE THE VOLUME OF SPOTIFY TO 100 IF THE SONG ARTIST IS JUICE WRLD, TRYING TO GET IT TO WORK ON YOUR PHONE
+    if "Juice WRLD" in current_track_info["Artist"]:
+        requests.put('https://api.spotify.com/v1/me/player/volume?volume_percent=70', headers={
+            "Authorization": f"Bearer {access_token}"
+        })
+        print("Volume is now 70")
+
+    # USE THE DEFAULT VOLUME OF 70 IF ARTIST IS NOT JUICE WRLD
+    if "Juice WRLD" not in current_track_info["Artist"]:
+        requests.put('https://api.spotify.com/v1/me/player/volume?volume_percent=50', headers={
+            "Authorization": f"Bearer {access_token}"
+        })
+    return ''
+
+while True:
     current_track_info = get_current_track(
         SPOTIFY_ACCESS_TOKEN
     )
+    sleep(time_remaining)
+    print(end='\n')
     print(current_track_info)
 
 
-main()
+
+
+
