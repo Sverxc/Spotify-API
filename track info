@@ -76,7 +76,7 @@ while True:
     current_track_info = get_current_track(
         SPOTIFY_ACCESS_TOKEN
     )
-    sleep(time_remaining)
+    sleep(time_remaining-2)
     print(end='\n')
     print(current_track_info)
 
