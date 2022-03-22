@@ -1,16 +1,18 @@
 import requests
 from time import *
 
-# LINKS
-SPOTIFY_ACCESS_TOKEN = input('Enter your auth code: ')
-SPOTIFY_GET_CURRENT_TRACK_URL = 'https://api.spotify.com/v1/me/player'
 
-# GLOBAL VARIABLES
+# VARIABLES
+SPOTIFY_ACCESS_TOKEN = input('Enter your token here: ')
+SPOTIFY_GET_CURRENT_TRACK_URL = 'https://api.spotify.com/v1/me/player'
 time_remaining = 0
+
+# LISTS
+favorite_artists = ["Juice World", "Lil Tjay", "Polo G", "Lil Loaded", "YNW Melly", "XXXTENTACION", "NLE Choppa"]
+
 
 # MAIN FUNCTION
 def get_current_track(access_token):
-
     # ACCESS SONG INFORMATION
 
     global time_remaining
@@ -24,8 +26,8 @@ def get_current_track(access_token):
     resp_json = response.json()
 
     # SONG INFO
-    track_id = resp_json['item']['id']
     track_name = resp_json['item']['name']
+    track_popularity = resp_json['item']['popularity']
 
     track_duration = resp_json['item']['duration_ms']
     track_total_runtime = track_duration // 1000
@@ -41,11 +43,11 @@ def get_current_track(access_token):
 
     link = resp_json['item']['external_urls']['spotify']
 
-    # PUTTING ALL THE SONG INFO INTO A DICTIONARY, SO YOU CAN CALL SPECIFIC PIECES OF THE SONGS INFO
+    # PUTTING ALL THE SONG INFO INTO A DICTIONARY, SO YOU CAN CALL SPECIFIC PIECES OF THE SONGS INFO, AND/OR PRINT IT
     current_track_info = {
-        "Id": track_id,
         "Name": track_name,
         "Artist": artists_names,
+        "Popularity": track_popularity,
         "Link": link,
         "Volume": track_volume,
         "Duration(sec)": track_total_runtime,
@@ -57,25 +59,24 @@ def get_current_track(access_token):
     for key, value in current_track_info.items():
         print(key, ':', value)
 
-    # CHANGE THE VOLUME OF SPOTIFY TO 70 IF THE SONG ARTIST IS JUICE WRLD, OR WHICHEVER ARTIST YOU CHOOSE
-    if "Juice WRLD" in current_track_info["Artist"]:
-        requests.put('https://api.spotify.com/v1/me/player/volume?volume_percent=70', headers={
-            "Authorization": f"Bearer {access_token}"
-        })
-        print("Volume is now 70")
+    for a in favorite_artists:
+        if a in current_track_info["Artist"]:
+            requests.put(f'https://api.spotify.com/v1/me/player/volume?volume_percent=50', headers={
+                "Authorization": f"Bearer {access_token}"
+            })
+        else:
+            requests.put(f'https://api.spotify.com/v1/me/player/volume?volume_percent=30', headers={
+                "Authorization": f"Bearer {access_token}"
+            })
 
-    # USE THE DEFAULT VOLUME OF 70 IF ARTIST IS NOT JUICE WRLD, OR WHICHEVER ARTIST YOU CHOOSE
-    if "Juice WRLD" not in current_track_info["Artist"]:
-        requests.put('https://api.spotify.com/v1/me/player/volume?volume_percent=50', headers={
-            "Authorization": f"Bearer {access_token}"
-        })
     return ''
 
 
+# RUN CODE AFTER EVERY SONG
 while True:
     current_track_info = get_current_track(
         SPOTIFY_ACCESS_TOKEN
     )
-    sleep(time_remaining-2)
+    sleep(time_remaining - 1)
     print(end='\n')
     print(current_track_info)
