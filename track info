@@ -1,14 +1,14 @@
 import requests
 from time import *
 
-
 # VARIABLES
 SPOTIFY_ACCESS_TOKEN = input('Enter your token here: ')
 SPOTIFY_GET_CURRENT_TRACK_URL = 'https://api.spotify.com/v1/me/player'
 time_remaining = 0
 
 # LISTS
-favorite_artists = ["Juice World", "Lil Tjay", "Polo G", "Lil Loaded", "YNW Melly", "XXXTENTACION", "NLE Choppa"]
+favorite_artists = ["Juice WRLD", "Lil Tjay", "Polo G", "Lil Loaded", "YNW Melly", "XXXTENTACION", "NLE Choppa",
+                    "Scorey", "Lil Mosey", "Trippie Redd", "Drake", "Roddy Ricch"]
 
 
 # MAIN FUNCTION
@@ -50,33 +50,31 @@ def get_current_track(access_token):
         "Popularity": track_popularity,
         "Link": link,
         "Volume": track_volume,
-        "Duration(sec)": track_total_runtime,
-        "Progress(sec)": track_progress_runtime,
-        "Time remaining(sec)": time_remaining
+        "Duration(sec)": track_total_runtime
     }
 
     # PRINT THE INFORMATION ONTO THE CONSOLE
     for key, value in current_track_info.items():
         print(key, ':', value)
 
-    for a in favorite_artists:
-        if a in current_track_info["Artist"]:
-            requests.put(f'https://api.spotify.com/v1/me/player/volume?volume_percent=50', headers={
-                "Authorization": f"Bearer {access_token}"
-            })
-        else:
-            requests.put(f'https://api.spotify.com/v1/me/player/volume?volume_percent=30', headers={
-                "Authorization": f"Bearer {access_token}"
-            })
+    if current_track_info["Artist"] in favorite_artists:
+        requests.put('https://api.spotify.com/v1/me/player/volume?volume_percent=100', headers={
+            "Authorization": f"Bearer {access_token}"
+        })
+        print('Favorite artists in song, volume now 100')
+    if current_track_info["Artist"] not in favorite_artists:
+        requests.put('https://api.spotify.com/v1/me/player/volume?volume_percent=70', headers={
+            "Authorization": f"Bearer {access_token}"
+        })
+        print('Favorite artists not in song, volume now 70')
 
     return ''
-
 
 # RUN CODE AFTER EVERY SONG
 while True:
     current_track_info = get_current_track(
         SPOTIFY_ACCESS_TOKEN
     )
+
     sleep(time_remaining - 1)
-    print(end='\n')
     print(current_track_info)
