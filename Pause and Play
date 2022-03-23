@@ -1,14 +1,13 @@
 import requests
+from time import *
 
 # LINKS
-SPOTIFY_ACCESS_TOKEN = input('Enter your auth code: ')
-# access token is OAuth Token at https://developer.spotify.com/console/get-user-player/
+SPOTIFY_ACCESS_TOKEN = input('Enter your token here: ')
 SPOTIFY_GET_CURRENT_TRACK_URL = 'https://api.spotify.com/v1/me/player'
-pause = 'https://api.spotify.com/v1/me/player/pause'
-BaseUrl = 'https://api.spotify.com/v1/me'
 
 # CURRENT TRACK INFORMATION
 def get_current_track(access_token):
+
     response = requests.get(
         SPOTIFY_GET_CURRENT_TRACK_URL,
 
@@ -40,14 +39,41 @@ def get_current_track(access_token):
         print(key, ':', value)
 
     while True:
-        pause_play = input("Play/Pause: ")
-        if pause_play == "Pause":
+        pause_play_next_previous = input("Play | Pause | Next | Previous | Volume | Repeat: ")
+        if pause_play_next_previous == "Play":
+            requests.put('https://api.spotify.com/v1/me/player/play', headers={
+                "Authorization": f"Bearer {access_token}"
+            })
+
+        if pause_play_next_previous == "Pause":
             requests.put('https://api.spotify.com/v1/me/player/pause', headers={
                 "Authorization": f"Bearer {access_token}"
             })
-        # PLAY
-        if pause_play == "Play":
-            requests.put('https://api.spotify.com/v1/me/player/play', headers={
+
+        if pause_play_next_previous == "Next":
+            requests.post('https://api.spotify.com/v1/me/player/next', headers={
+                "Authorization": f"Bearer {access_token}"
+            })
+
+            sleep(5)
+            for key, value in current_track_info.items():
+                print(key, ':', value)
+        if pause_play_next_previous == "Previous":
+            requests.post('https://api.spotify.com/v1/me/player/previous', headers={
+                "Authorization": f"Bearer {access_token}"
+            })
+
+            sleep(5)
+            for key, value in current_track_info.items():
+                print(key, ':', value)
+        if pause_play_next_previous == "Volume":
+            volume = int(input("What volume would you like?: "))
+            requests.put(f'https://api.spotify.com/v1/me/player/volume?volume_percent={volume}', headers={
+                "Authorization": f"Bearer {access_token}"
+            })
+
+        if pause_play_next_previous == "Repeat":
+            requests.put('https://api.spotify.com/v1/me/player/repeat?state=context', headers={
                 "Authorization": f"Bearer {access_token}"
             })
 def main():
